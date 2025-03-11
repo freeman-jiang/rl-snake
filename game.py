@@ -67,6 +67,29 @@ class SnakeGame:
             if self.food not in self.snake:
                 break
     
+    def debug_print(self):
+        """Print an ASCII representation of the game board with snake and food."""
+        # Create an empty board
+        board = [[' ' for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        
+        # Place food on the board
+        if self.food:
+            board[self.food[1]][self.food[0]] = 'F'
+        
+        # Place snake on the board
+        for i, segment in enumerate(self.snake):
+            if i == 0:  # Head
+                board[segment[1]][segment[0]] = 'H'
+            else:  # Body
+                board[segment[1]][segment[0]] = 'O'
+        
+        # Print the board with borders
+        print('+' + '-' * self.grid_width + '+')
+        for row in board:
+            print('|' + ''.join(row) + '|')
+        print('+' + '-' * self.grid_width + '+')
+        print(f"Score: {self.score}, Length: {len(self.snake)}, Direction: {self.snake_direction.name}")
+    
     def step(self, action):
         """
         Update the game state based on the provided action.

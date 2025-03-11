@@ -12,7 +12,7 @@ class Direction(Enum):
     LEFT = 2
     UP = 3
 
-class SnakeGameAI:
+class SnakeGame:
     def __init__(self, width=640, height=480, grid_size=20, render=True):
         self.width = width
         self.height = height
@@ -34,7 +34,7 @@ class SnakeGameAI:
     def reset(self):
         """Reset the game to initial state and return the initial observation."""
         # Initial direction
-        self.direction = Direction.RIGHT
+        self.snake_direction = Direction.RIGHT
         
         # Initial snake position (head at center, body to the left)
         self.head = [self.grid_width // 2, self.grid_height // 2]
@@ -191,19 +191,19 @@ class SnakeGameAI:
         # Set direction directly based on action
         if 0 <= action <= 3:
             # Prevent 180-degree turns (snake can't turn back on itself)
-            current_dir_idx = self.direction.value
+            current_dir_idx = self.snake_direction.value
             if (action != (current_dir_idx + 2) % 4):
-                self.direction = Direction(action)
+                self.snake_direction = Direction(action)
         
         # Update head position based on the direction
         x, y = self.head
-        if self.direction == Direction.RIGHT:
+        if self.snake_direction == Direction.RIGHT:
             x += 1
-        elif self.direction == Direction.LEFT:
+        elif self.snake_direction == Direction.LEFT:
             x -= 1
-        elif self.direction == Direction.DOWN:
+        elif self.snake_direction == Direction.DOWN:
             y += 1
-        elif self.direction == Direction.UP:
+        elif self.snake_direction == Direction.UP:
             y -= 1
         
         self.head = [x, y]
@@ -242,7 +242,7 @@ class SnakeGameAI:
         
         # Current direction as a one-hot encoding
         dir_one_hot = [0, 0, 0, 0]
-        dir_one_hot[self.direction.value] = 1
+        dir_one_hot[self.snake_direction.value] = 1
         
         # Food direction
         food_dir = [
@@ -296,7 +296,7 @@ class SnakeEnv:
     This makes it easier to use with RL libraries.
     """
     def __init__(self, width=640, height=480, grid_size=20, render=True):
-        self.game = SnakeGameAI(width, height, grid_size, render)
+        self.game = SnakeGame(width, height, grid_size, render)
         self.action_space = self.game.get_action_space()
         self.observation_space = self.game.get_state_space()
     
@@ -330,7 +330,7 @@ class SnakeEnv:
 def main():
     # Allow choosing between AI and human mode
     human_mode = False  # Set to False for AI mode
-    game = SnakeGameAI(render=True)
+    game = SnakeGame(render=True)
     
     # Print information about the state and action spaces
     print(f"Action Space: {game.get_action_space()}")
@@ -360,7 +360,7 @@ def main():
             
             # If no key was pressed, continue in same direction
             if action is None:
-                action = game.direction.value
+                action = game.snake_direction.value
         else:
             # AI mode - random actions
             action = random.randint(0, 3)
@@ -374,7 +374,7 @@ def main():
             print(f"Action: {action}")
             print(f"Reward: {reward}")
             print(f"Score: {info['score']}")
-            time.sleep(0.1)  # Delay only in AI mode
+            time.sleep(1)  # Delay only in AI mode
         
         if done:
             print(f"Game Over! Final Score: {info['score']}")
